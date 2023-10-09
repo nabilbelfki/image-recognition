@@ -34,6 +34,19 @@
 
 
     <build>
-        <!-- Configure your build settings here -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version> <!-- Use the appropriate version -->
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.nabilbelfki.ObjectDetectionApp</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
