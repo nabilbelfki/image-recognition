@@ -1,64 +1,77 @@
 package com.nabilbelfki;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.*;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
-public class TextRecognitionApp implements RequestHandler<Object, Object> {
-    private final String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/966415988081/MyQueue";
+import java.io.FileWriter;
+import java.io.IOException;
 
-    public TextRecognitionApp() {
-        // Initialize the Rekognition client
-        RekognitionClient rekognitionClient = RekognitionClient.builder()
-                .region(Region.US_EAST_1) // Replace with your desired AWS region
-                .credentialsProvider(DefaultCredentialsProvider.create())
-                .build();
-    }
+public class TextRecognitionApp {
 
-    @Override
-    public Object handleRequest(final Object input, final Context context) {
-        // Create an SQS client to receive indexes from EC2 A
-        // Initialize S3 client to read images from S3 bucket
-
-        // Initialize the SQS client
-        SqsClient sqsClient = SqsClient.builder()
-                .region(Region.US_EAST_1) // Replace with your desired AWS region
-                .credentialsProvider(DefaultCredentialsProvider.create())
-                .build();
-
-        while (true) {
-            // Receive messages (image indexes) from SQS
-            ReceiveMessageResponse receiveMessageResponse = sqsClient.receiveMessage(ReceiveMessageRequest.builder()
-                    .queueUrl(sqsQueueUrl)
-                    .maxNumberOfMessages(1)
-                    .waitTimeSeconds(20) // Adjust as needed
-                    .build());
-
-            for (Message message : receiveMessageResponse.messages()) {
-                String index = message.body();
-
-                if (index.equals("-1")) {
-                    // Termination signal received, exit the loop and terminate
-                    return "Text recognition completed.";
-                }
-
-                // Download the image from S3 using the received index
-                // Perform text recognition using Rekognition
-
-                // Store the index and recognized text to a file on EBS
-            }
-        }
-    }
+    private static final String sqsQueueUrl = "YOUR_SQS_QUEUE_URL";
+    private static final String s3BucketName = "njit-cs-643";
+    private static final String ebsFilePath = "/path/to/your/ebs/folder/results.txt";
 
     public static void main(String[] args) {
-        // This is the entry point when running on EC2 B
-        // You can create an AWS Lambda function that uses this class for text
-        // recognition
-        // Initialize the Lambda function handler and execute it
+
+        // Initializing the Rekognition client
+        RekognitionClient rekognitionClient = RekognitionClient.builder()
+                .region(Region.US_EAST_1)
+                .build();
+
+        // Initializing the SQS client
+        SqsClient sqsClient = SqsClient.builder()
+                .region(Region.US_EAST_1)
+                .build();
+
+        try (FileWriter fileWriter = new FileWriter(ebsFilePath)) {
+            while (true) {
+                // Receive messages (image indexes) from SQS
+                ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
+                        .queueUrl(sqsQueueUrl)
+                        .maxNumberOfMessages(1)
+                        .waitTimeSeconds(20)
+                        .build();
+                ReceiveMessageResponse receiveMessageResponse = sqsClient.receiveMessage(receiveMessageRequest);
+
+                for (Message message : receiveMessageResponse.messages()) {
+                    String index = message.body();
+
+                    if (index.equals("-1")) {
+                        // Termination signal received, exit the loop and terminate
+                        fileWriter.close();
+                        System.out.println("Text recognition completed.");
+                        return;
+                    }
+
+                    // Perform text recognition using Rekognition
+                    DetectTextRequest detectTextRequest = DetectTextRequest.builder()
+                            .image(Image.builder()
+                                    .s3Object(
+                                            S3Object.builder()
+                                                    .bucket(s3BucketName)
+                                                    .name(index + ".jpg")
+                                                    .build())
+                                    .build())
+                            .build();
+                    DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
+
+                    // Store the index and recognized text to the EBS file
+                    for (TextDetection textDetection : detectTextResponse.textDetections()) {
+                        String detectedText = textDetection.detectedText();
+                        fileWriter.write("Image Index: " + index + "\n");
+                        fileWriter.write("Detected Text: " + detectedText + "\n");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Text recognition failed with an error: " + e.getMessage());
+        }
     }
 }
