@@ -13,9 +13,9 @@ import java.io.IOException;
 
 public class TextRecognitionApp {
 
-    private static final String sqsQueueUrl = "YOUR_SQS_QUEUE_URL";
+    private static final String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/966415988081/ImageQueuePipeline.fifo";
     private static final String s3BucketName = "njit-cs-643";
-    private static final String ebsFilePath = "/path/to/your/ebs/folder/results.txt";
+    private static final String ebsFilePath = "results.txt";
 
     public static void main(String[] args) {
 
