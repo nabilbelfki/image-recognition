@@ -63,11 +63,11 @@ public class ObjectDetectionApp {
                     .build());
 
             for (Label label : detectLabelsResponse.labels()) {
+                System.out.println("Key: " + s3Object.key());
                 System.out.println("Label: " + label.name() + ", Confidence: " + label.confidence());
 
                 if (label.name().equals("Car")) {
                     // See the key
-                    System.out.println("Key: " + s3Object.key());
 
                     // Car detected with confidence > 90%, send the index to SQS
                     SendMessageRequest sendMessageRequest = SendMessageRequest.builder()

@@ -65,12 +65,15 @@ public class TextRecognitionApp {
                             .build();
                     DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
 
+                    fileWriter.write(index);
+
                     // Store the index and recognized text to the EBS file
                     for (TextDetection textDetection : detectTextResponse.textDetections()) {
                         String detectedText = textDetection.detectedText();
-                        fileWriter.write("Image Index: " + index + "\n");
-                        fileWriter.write("Detected Text: " + detectedText + "\n");
+                        fileWriter.write(" " + detectedText);
                     }
+
+                    fileWriter.write("\n");
 
                     // Delete the processed message from the SQS queue
                     sqsClient.deleteMessage(DeleteMessageRequest.builder()
