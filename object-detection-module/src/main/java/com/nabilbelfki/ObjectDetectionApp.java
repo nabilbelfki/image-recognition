@@ -1,5 +1,8 @@
 package com.nabilbelfki;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
@@ -39,6 +42,9 @@ public class ObjectDetectionApp {
 
         for (S3Object s3Object : listObjectsResponse.contents()) {
 
+            // Generate a unique identifier using timestamp and a random UUID
+            String uniqueId = Instant.now().toString() + "-" + UUID.randomUUID().toString();
+
             // Create an S3Object from the AWS SDK S3 model
             software.amazon.awssdk.services.rekognition.model.S3Object rekognitionS3Object = software.amazon.awssdk.services.rekognition.model.S3Object
                     .builder()
@@ -62,6 +68,7 @@ public class ObjectDetectionApp {
                             .queueUrl(sqsQueueUrl)
                             .messageBody(s3Object.key())
                             .messageGroupId("Cars")
+                            .messageDeduplicationId(uniqueId)
                             .build();
                     sqsClient.sendMessage(sendMessageRequest);
                 }
@@ -73,6 +80,7 @@ public class ObjectDetectionApp {
                 .queueUrl(sqsQueueUrl)
                 .messageBody("-1")
                 .messageGroupId("Cars")
+                .messageDeduplicationId("termination")
                 .build();
         sqsClient.sendMessage(terminationMessage);
 
