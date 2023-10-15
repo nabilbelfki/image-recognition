@@ -8,7 +8,7 @@ sudo amazon-linux-extras install epel
 sudo yum install maven
 git clone https://github.com/nabilbelfki/image-recognition.git
 cd ~/image-recognition/object-detection-module
-java -cp target/object-detection-module-1.0-SNAPSHOT.jar com.nabilbelfki.ObjectDetectionApp
+java -cp object-detection-module/target/object-detection-module-1.0-SNAPSHOT-jar-with-dependencies.jar com.nabilbelfki.ObjectDetectionApp
 
 ssh -i "/Users/nabilbelfki/Instance B Key.pem" ec2-user@54.160.205.146
 sudo yum install git
@@ -17,4 +17,4 @@ sudo amazon-linux-extras install epel
 sudo yum install maven
 git clone https://github.com/nabilbelfki/image-recognition.git
 cd ~/image-recognition/text-recognition-module
-java -cp target/text-recognition-module-1.0-SNAPSHOT.jar com.nabilbelfki.TextRecognitionApp
+java -cp text-recognition-module/target/text-recognition-module-1.0-SNAPSHOT-jar-with-dependencies.jar com.nabilbelfki.TextRecognitionApp

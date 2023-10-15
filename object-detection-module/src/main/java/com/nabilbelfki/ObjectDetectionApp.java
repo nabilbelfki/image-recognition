@@ -61,6 +61,7 @@ public class ObjectDetectionApp {
                     SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
                             .queueUrl(sqsQueueUrl)
                             .messageBody(s3Object.key())
+                            .messageGroupId("Cars")
                             .build();
                     sqsClient.sendMessage(sendMessageRequest);
                 }
@@ -71,6 +72,7 @@ public class ObjectDetectionApp {
         SendMessageRequest terminationMessage = SendMessageRequest.builder()
                 .queueUrl(sqsQueueUrl)
                 .messageBody("-1")
+                .messageGroupId("Cars")
                 .build();
         sqsClient.sendMessage(terminationMessage);
 
