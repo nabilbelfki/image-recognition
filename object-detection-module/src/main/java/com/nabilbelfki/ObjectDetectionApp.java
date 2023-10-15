@@ -44,6 +44,7 @@ public class ObjectDetectionApp {
 
             // Generate a unique identifier using timestamp and a random UUID
             String uniqueId = Instant.now().toString() + "-" + UUID.randomUUID().toString();
+            String groupUniqueId = Instant.now().toString() + "-" + UUID.randomUUID().toString();
 
             // Create an S3Object from the AWS SDK S3 model
             software.amazon.awssdk.services.rekognition.model.S3Object rekognitionS3Object = software.amazon.awssdk.services.rekognition.model.S3Object
@@ -62,12 +63,17 @@ public class ObjectDetectionApp {
                     .build());
 
             for (Label label : detectLabelsResponse.labels()) {
+                System.out.println("Label: " + label.name() + ", Confidence: " + label.confidence());
+
                 if (label.name().equals("Car")) {
+                    // See the key
+                    System.out.println("Key: " + s3Object.key());
+
                     // Car detected with confidence > 90%, send the index to SQS
                     SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
                             .queueUrl(sqsQueueUrl)
                             .messageBody(s3Object.key())
-                            .messageGroupId("Cars")
+                            .messageGroupId(groupUniqueId)
                             .messageDeduplicationId(uniqueId)
                             .build();
                     sqsClient.sendMessage(sendMessageRequest);

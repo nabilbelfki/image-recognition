@@ -4,6 +4,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
@@ -42,6 +43,9 @@ public class TextRecognitionApp {
                 for (Message message : receiveMessageResponse.messages()) {
                     String index = message.body();
 
+                    // Print the image index
+                    System.out.println("Processing image index: " + index);
+
                     if (index.equals("-1")) {
                         // Termination signal received, exit the loop and terminate
                         fileWriter.close();
@@ -55,7 +59,7 @@ public class TextRecognitionApp {
                                     .s3Object(
                                             S3Object.builder()
                                                     .bucket(s3BucketName)
-                                                    .name(index + ".jpg")
+                                                    .name(index)
                                                     .build())
                                     .build())
                             .build();
@@ -67,6 +71,12 @@ public class TextRecognitionApp {
                         fileWriter.write("Image Index: " + index + "\n");
                         fileWriter.write("Detected Text: " + detectedText + "\n");
                     }
+
+                    // Delete the processed message from the SQS queue
+                    sqsClient.deleteMessage(DeleteMessageRequest.builder()
+                            .queueUrl(sqsQueueUrl)
+                            .receiptHandle(message.receiptHandle())
+                            .build());
                 }
             }
         } catch (IOException e) {
