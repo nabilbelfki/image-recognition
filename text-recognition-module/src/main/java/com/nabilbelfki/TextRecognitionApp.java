@@ -43,6 +43,9 @@ public class TextRecognitionApp {
                 for (Message message : receiveMessageResponse.messages()) {
                     String index = message.body();
 
+                    Boolean text = false;
+                    String detectedText = "";
+
                     // Print the image index
                     System.out.println("Processing image index: " + index);
 
@@ -65,15 +68,17 @@ public class TextRecognitionApp {
                             .build();
                     DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
 
-                    fileWriter.write(index);
-
                     // Store the index and recognized text to the EBS file
                     for (TextDetection textDetection : detectTextResponse.textDetections()) {
-                        String detectedText = textDetection.detectedText();
-                        fileWriter.write(" " + detectedText);
+                        detectedText = textDetection.detectedText();
+                        text = true;
                     }
 
-                    fileWriter.write("\n");
+                    if (text) {
+                        fileWriter.write(index);
+                        fileWriter.write(" " + detectedText);
+                        fileWriter.write("\n");
+                    }
 
                     // Delete the processed message from the SQS queue
                     sqsClient.deleteMessage(DeleteMessageRequest.builder()

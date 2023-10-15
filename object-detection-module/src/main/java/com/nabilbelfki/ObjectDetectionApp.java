@@ -42,6 +42,9 @@ public class ObjectDetectionApp {
 
         for (S3Object s3Object : listObjectsResponse.contents()) {
 
+            // Display the key
+            System.out.println("Key: " + s3Object.key());
+
             // Generate a unique identifier using timestamp and a random UUID
             String uniqueId = Instant.now().toString() + "-" + UUID.randomUUID().toString();
             String groupUniqueId = Instant.now().toString() + "-" + UUID.randomUUID().toString();
@@ -63,7 +66,6 @@ public class ObjectDetectionApp {
                     .build());
 
             for (Label label : detectLabelsResponse.labels()) {
-                System.out.println("Key: " + s3Object.key());
                 System.out.println("Label: " + label.name() + ", Confidence: " + label.confidence());
 
                 if (label.name().equals("Car")) {
