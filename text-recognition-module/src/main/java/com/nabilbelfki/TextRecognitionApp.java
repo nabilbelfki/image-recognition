@@ -75,9 +75,9 @@ public class TextRecognitionApp {
                     }
 
                     if (text) {
-                        fileWriter.write(index);
-                        fileWriter.write(" " + detectedText);
-                        fileWriter.write("\n");
+                        fileWriter.write(index + " " + detectedText + "\n");
+                        fileWriter.flush(); // Ensure data is flushed to the file
+                        System.out.println("Data written to " + ebsFilePath);
                     }
 
                     // Delete the processed message from the SQS queue
