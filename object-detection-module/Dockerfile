@@ -17,5 +17,8 @@ WORKDIR /app/image-recognition/object-detection-module
 RUN mvn clean install
 RUN mvn clean package
 
-# Set the entry point
-CMD ["java", "-cp", "target/object-detection-module-1.0-SNAPSHOT-jar-with-dependencies.jar", "com.nabilbelfki.ObjectDetectionApp"]
+# Copy the interactive shell script into the container
+COPY interactive.sh /app/interactive.sh
+
+# Set the entry point to run the interactive script
+ENTRYPOINT ["/app/interactive.sh"]

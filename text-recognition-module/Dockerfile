@@ -20,5 +20,8 @@ RUN mvn clean package
 # Specify a volume to mount the directory containing the output.txt file
 VOLUME /app/output-directory
 
-# Set the entry point
-CMD ["java", "-cp", "target/text-recognition-module-1.0-SNAPSHOT-jar-with-dependencies.jar", "com.nabilbelfki.TextRecognitionApp"]
+# Copy the interactive shell script into the container
+COPY interactive.sh /app/interactive.sh
+
+# Set the entry point to run the interactive script
+ENTRYPOINT ["/app/interactive.sh"]

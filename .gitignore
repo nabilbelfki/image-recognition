@@ -1,0 +1,9 @@
+instructions.txt
+
+object-detection-module/Dockerfile
+object-detection-module/execute.sh
+object-detection-module/interactive.sh
+
+text-recognition-module/Dockerfile
+text-recognition-module/execute.sh
+text-recognition-module/interactive.sh
