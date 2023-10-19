@@ -16,7 +16,7 @@ public class TextRecognitionApp {
 
     private static final String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/966415988081/ImageQueuePipeline.fifo";
     private static final String s3BucketName = "njit-cs-643";
-    private static final String ebsFilePath = "results.txt";
+    private static final String ebsFilePath = "/app/output-directory/output.txt";
 
     public static void main(String[] args) {
 
