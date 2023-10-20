@@ -1,63 +1,81 @@
-chmod 400 /Users/nabilbelfki/Instance\ A\ Key.pem
-chmod 400 /Users/nabilbelfki/Instance\ B\ Key.pem
+# Image Recognition Project
 
-For Instance A:
-ssh -i "/Users/nabilbelfki/Instance A Key.pem" ec2-user@3.83.248.80
+This project is designed to perform image recognition tasks using Amazon Corretto, Git, Java, Maven, and AWS services. It consists of two main components: Object Detection and Text Recognition.
+
+## Prerequisites
+
+Before you begin, ensure you have the following requirements:
+
+- An Amazon EC2 instance with SSH access
+- AWS CLI configured with the necessary credentials
+
+## Setup
+
+### Step 1: Connect to the EC2 Instance
+
+Use SSH to connect to your EC2 instance:
+
+```bash
+ssh -i "/path/to/your/InstanceAKey.pem" ec2-user@your-instance-ip
+```
+
+### Step 2: Install Required Software
+
+Install Git, Java, Maven, and EPEL repository on your EC2 instance:
+
+```bash
 sudo yum install git
 sudo yum install java-11-amazon-corretto-devel
 sudo amazon-linux-extras install epel
 sudo yum install maven
+```
+
+### Step 3: Clone the Repository
+
+Clone the image-recognition repository:
+
+```bash
 git clone https://github.com/nabilbelfki/image-recognition.git
 cd image-recognition
+```
+
+### Step 4: Build the Project
+
+Build the application using Maven:
+
+```bash
 mvn clean install
 mvn clean package
+```
+
+## Object Detection (Instance A)
+
+To perform object detection, use the following command:
+
+```bash
 java -cp object-detection-module/target/object-detection-module-1.0-SNAPSHOT-jar-with-dependencies.jar com.nabilbelfki.ObjectDetectionApp
+```
 
-For Instance B:
-ssh -i "/Users/nabilbelfki/Instance B Key.pem" ec2-user@54.160.205.146
-sudo yum install git
-sudo yum install java-11-amazon-corretto-devel
-sudo amazon-linux-extras install epel
-sudo yum install maven
-git clone https://github.com/nabilbelfki/image-recognition.git
-cd image-recognition
-mvn clean install
-mvn clean package
+## Text Recognition (Instance B)
+
+To perform text recognition, use the following command:
+
+```bash
 java -cp text-recognition-module/target/text-recognition-module-1.0-SNAPSHOT-jar-with-dependencies.jar com.nabilbelfki.TextRecognitionApp
+```
+
+## Viewing Output
+
+You can view the output of the Text Recognition component by running:
+
+```bash
 cat output.txt
+```
 
-#docker stuff
-sudo yum update -y
-sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-sudo yum install -y docker
-sudo service docker start
-sudo chkconfig docker on
-sudo usermod -aG docker ec2-user
-newgrp docker
-docker --version
+## License
 
-docker pull nabilbelfki/text-recognition-app:latest
-docker pull nabilbelfki/object-detection-app:latest
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-docker tag object-detection-app nabilbelfki/object-detection-app:object-detection-tag
-docker tag text-recognition-app nabilbelfki/text-recognition-app:text-recognition-tag
-mkdir .aws
+## Acknowledgments
 
-cd .aws
-
-nano credentials
-
-cd ..
-
-docker run -d -e AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) -e AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key) -e AWS_DEFAULT_REGION=us-east-1 -e AWS_SESSION_TOKEN=$(aws configure get aws_session_token) nabilbelfki/object-detection-app:latest
-
-mkdir Output
-chmod 775 /home/ec2-user/Output
-
-docker run -it -v /home/ec2-user/Output:/app/Output -e AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) -e AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key) -e AWS_DEFAULT_REGION=us-east-1 -e AWS_SESSION_TOKEN=$(aws configure get aws_session_token) nabilbelfki/text-recognition-app:latest
-
-docker run -it -v /home/ec2-user/Output:/app/Output -e AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) -e AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key) -e AWS_DEFAULT_REGION=us-east-1 -e AWS_SESSION_TOKEN=$(aws configure get aws_session_token) nabilbelfki/text-recognition-app:latest
-
-nano execute.sh
-chmod +x execute.sh
-./execute.sh
+Special thanks to Amazon Web Services for their services and support.
